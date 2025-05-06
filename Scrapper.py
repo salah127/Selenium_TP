@@ -11,7 +11,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 import undetected_chromedriver as uc
 import tkinter as tk
 
-max_results = 10
+max_results = 20
 availability_start = "01/01/2025"
 availability_end = "31/12/2025"
 # medical_request = "Médecin généraliste"
@@ -83,7 +83,7 @@ print(f"🔍 {len(cards)} cartes de médecins détectées")
  
 medecins = []
 print("cards", len(cards))
-# time.sleep(200)
+# time.sleep(2000)
  
 for card in cards:
     try:
@@ -99,18 +99,31 @@ for card in cards:
         nom = "Non précisé"
         
     try:
-        availabilities_container = driver.find_element(By.CSS_SELECTOR, "div[data-test-id='availabilities-container']")
-        container_text = availabilities_container.text.strip()
-        print(f"✅ Texte extrait : {container_text}")
+        availabilities_container = card.find_element(By.CLASS_NAME, "m-16")
+        Disponibilités = availabilities_container.text.strip()
     except:
-        container_text = "Aucun horaire affiché"        
+        Disponibilités = "Aucun horaire affiché"
+    
+   
+    try:
+        additional_info = availabilities_container.find_element(By.CLASS_NAME, "w-48")
+        if additional_info and additional_info.find_elements(By.TAG_NAME, "div"):
+            consultation_type = "Téléconsultations"
+        else:
+            consultation_type = "Sur Place"
+    except:
+        consultation_type = "Informations supplémentaires non disponibles"
         
+            
+            
+        print(f"✅ Texte extrait : {Disponibilités}")
         
     
  
     medecins.append({
         "Nom": nom,
-        "Disponibilités": container_text
+        "Disponibilités": Disponibilités,
+        "consultation_type": consultation_type,
     })
     print("medecins", medecins)
  
