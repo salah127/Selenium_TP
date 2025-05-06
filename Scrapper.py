@@ -27,6 +27,8 @@ price_min = user_input["price_min"]
 price_max = user_input["price_max"]
 geographical_filter = user_input["geographical_filter"]
 
+
+
 root = tk.Tk()
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
@@ -35,6 +37,7 @@ half_width = screen_width // 2
 driver = uc.Chrome(driver_executable_path=ChromeDriverManager().install())
 driver.set_page_load_timeout(3000)
 driver.implicitly_wait(10)
+driver.set_window_size(screen_width, screen_height)
 driver.get("https://www.doctolib.fr")
 driver.set_window_position(0, 0)
 wait = WebDriverWait(driver, 15)
@@ -60,8 +63,8 @@ submit_btn = driver.find_element(By.CSS_SELECTOR, "button.searchbar-submit-butto
 submit_btn.click()
 time.sleep(2)
 
-driver.get(f"https://www.doctolib.fr/search?location={geographical_filter}&speciality={medical_request}")
-time.sleep(2)
+# driver.get(f"https://www.doctolib.fr/search?location={geographical_filter}&speciality={medical_request}")
+# time.sleep(2)
  
 
 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -73,7 +76,6 @@ print(f" {len(cards)} cartes de médecins détectées")
 medecins = []
 print("cards", len(cards))
 # time.sleep(2000)
-
 for card in cards:
     try:
         print("card", card.find_element(By.CSS_SELECTOR, "h2").text.strip())
@@ -92,7 +94,6 @@ for card in cards:
         Disponibilités = availabilities_container.text.strip()
         if Disponibilités.startswith(("Prochaines")) or Disponibilités.startswith(("Aucun")) or Disponibilités.startswith(("lundi")) or Disponibilités.startswith(("mardi")) or Disponibilités.startswith(("mercredi")) or Disponibilités.startswith(("jeudi")) or Disponibilités.startswith(("vendredi")) or Disponibilités.startswith(("samedi")) or Disponibilités.startswith(("dimanche")):
             Disponibilités = " ".join(line.strip() for line in Disponibilités.strip().split("\n") if line.strip())
-            
     except:
         Disponibilités = "Aucun horaire affiché"
     
@@ -129,36 +130,23 @@ for card in cards:
         print("No elements with 'flex flex-wrap gap-x-4' found")
     
     
-    # try:
-    #     a = card.find_element(By.CSS_SELECTOR, "a").get_attribute("href")
-    #     if a:
-    #         time.sleep(2)
-    #         driver.execute_script("window.open(arguments[0]);", a)
-    #         driver.switch_to.window(driver.window_handles[-1])
-    #         time.sleep(2)
-    #         tarif_sections = driver.find_elements(By.CSS_SELECTOR, ".dl-profile-card-section")
-    #         driver.close()
-    #         driver.switch_to.window(driver.window_handles[0])
-    #         for tarif_section in tarif_sections:
-    #             if "Tarif" in tarif_section.text:
-    #                 Tarif = tarif_section.text.strip()
-    # except:
-    #     Tarif = "Tarif non précisé"
+    
+    Tarif = "Tarif non précisé"
             
 
     
-    if (consultation_type == "in-person" and consultation == "in-person") or (consultation_type == "Téléconsultation" and consultation == "teleconsultation"):
+    if (consultation_type == "in-person" and consultation == "in-person") or (consultation_type == "Téléconsultation" and consultation == "teleconsultation") or (consultation_type == ""):
         medecins.append({
         "Nom": nom,
         "Disponibilités": Disponibilités,
         "consultation_type": consultation,
         "Secteur": Secteur,
-        # "Tarif": Tarif,        
+        "Tarif": Tarif,        
         "Rue": Rue,
         "Code_postal": Code_postal,
         "Ville": Ville,
     })
-    print("medecins", medecins)
+        print("medecins", medecins)
 
 
 # === Sauvegarde CSV ===

@@ -28,7 +28,7 @@ def ask_user_input():
 
     medical_request = input("Enter the type of medical professional to search for (default medecin-generaliste): ") or "medecin-generaliste"
     insurance_type = input("Enter the type of insurance coverage (default secteur 1): ") or "secteur 1"
-    consultation_type = input("Enter the type of consultation (e.g., in-person or teleconsultation, default in-person): ") or "in-person"
+    consultation_type = input("Enter the type of consultation: ")
 
     while True:
         try:
@@ -69,7 +69,6 @@ def validate_date(date_str):
     except ValueError:
         return False
 
-# Ask the user for input
-user_input = ask_user_input()
+
 
 
