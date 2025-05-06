@@ -15,12 +15,12 @@ max_results = 10
 availability_start = "01/01/2025"
 availability_end = "31/12/2025"
 # medical_request = "Médecin généraliste"
-medical_request = "dentiste"
+medical_request = "medecin-generaliste"
 insurance_type = "secteur 1"
 consultation_type = "in-person"
 price_min = "50"
 price_max = "150"
-geographical_filter = "75015"
+geographical_filter = "Paris"
 
 
 # === Configuration WebDriver ===
@@ -46,36 +46,50 @@ driver.set_window_size(half_width, screen_height)
 driver.set_window_position(0, 0)
 wait = WebDriverWait(driver, 15)
  
-# === Entrer la requête médicale ===
+
 
 accepter_btn = wait.until(EC.element_to_be_clickable((By.ID, "didomi-notice-agree-button")))
-accepter_btn.click()
+if accepter_btn.is_displayed():
+    accepter_btn.click()
+
 
 search_input = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "input.searchbar-query-input")))
 place_input = driver.find_element(By.CSS_SELECTOR, "input.searchbar-place-input")
 
 search_input.send_keys(medical_request)
-# place_input.clear()
+time.sleep(1)
+place_input.clear()
 place_input.send_keys(geographical_filter)
+time.sleep(2)
  
 # === Cliquer sur Rechercher ===
 submit_btn = driver.find_element(By.CSS_SELECTOR, "button.searchbar-submit-button")
 submit_btn.click()
+time.sleep(2)
+
+driver.get(f"https://www.doctolib.fr/search?location={geographical_filter}&speciality={medical_request}")
+# https://www.doctolib.fr/search?location=fontainebleau&speciality=medecin-generaliste
+# driver.get("https://www.doctolib.fr/search?location=fontainebleau&speciality=medecin-generaliste")
+
+time.sleep(2)
  
-# === Attendre les résultats + faire défiler pour tout charger ===è
-time.sleep(4)
+
 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 time.sleep(3)
  
 # === Extraire les cartes de médecins ===
-cards = driver.find_elements(By.CSS_SELECTOR, "li.w-full")[:max_results]
+cards = driver.find_elements(By.CSS_SELECTOR, "div.dl-card-content")[1:]
 print(f"🔍 {len(cards)} cartes de médecins détectées")
  
 medecins = []
 print("cards", len(cards))
-time.sleep(200)
+# time.sleep(200)
  
 for card in cards:
+    try:
+        print("card", card.find_element(By.CSS_SELECTOR, "h2").text.strip())
+    except Exception as e:
+        print("card", "No title found")
     if len(medecins) >= max_results:
         break 
 
@@ -83,39 +97,22 @@ for card in cards:
         nom = card.find_element(By.CSS_SELECTOR, "h2").text.strip()
     except:
         nom = "Non précisé"
- 
+        
     try:
-        specialite = card.find_element(By.CSS_SELECTOR, ".dl-doctor-card-speciality-title").text.strip()
+        availabilities_container = driver.find_element(By.CSS_SELECTOR, "div[data-test-id='availabilities-container']")
+        container_text = availabilities_container.text.strip()
+        print(f"✅ Texte extrait : {container_text}")
     except:
-        specialite = "Non précisée"
- 
-    try:
-        adresse_lines = card.find_elements(By.CSS_SELECTOR, "p.dl-text-neutral-130")
-        adresse = adresse_lines[0].text.strip()
-        cp_ville = adresse_lines[1].text.strip()
-        code_postal = cp_ville.split(' ')[0]
-        ville = ' '.join(cp_ville.split(' ')[1:])
-    except:
-        adresse = code_postal = ville = "Non précisé"
- 
-    try:
-        dispo_slots = card.find_elements(By.CSS_SELECTOR, "div[data-test='available-slot']")
-        disponibilites = [slot.text.strip() for slot in dispo_slots if slot.text.strip()]
-        disponibilite = ", ".join(disponibilites) if disponibilites else "Non précisée"
-    except:
-        disponibilite = "Non précisée"
- 
-    if disponibilite == "Non précisée":
-        continue  # Ne garde que les médecins avec des horaires visibles
+        container_text = "Aucun horaire affiché"        
+        
+        
+    
  
     medecins.append({
         "Nom": nom,
-        "Spécialité": specialite,
-        "Adresse": adresse,
-        "Code Postal": code_postal,
-        "Ville": ville,
-        "Disponibilités": disponibilite
+        "Disponibilités": container_text
     })
+    print("medecins", medecins)
  
 # === Sauvegarde CSV ===
 if medecins:
