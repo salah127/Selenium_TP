@@ -10,30 +10,22 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 import undetected_chromedriver as uc
 import tkinter as tk
+from Get_Inputs import ask_user_input
 
 
 
-max_results = 5
-availability_start = "01/01/2025"
-availability_end = "31/12/2025"
-# medical_request = "Médecin généraliste"
-medical_request = "medecin-generaliste"
-insurance_type = "secteur 1"
-consultation_type = "in-person"
-price_min = "50"
-price_max = "150"
-geographical_filter = "Paris"
+user_input = ask_user_input()
 
-
-# === Configuration WebDriver ===
-# chrome_options = Options()
-# chrome_options.add_argument("--start-maximized")
-# driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-
-
- 
-# # === Aller sur Doctolib ===
-# driver.get("https://www.doctolib.fr")
+# Update variables with user input
+max_results = user_input["max_results"]
+availability_start = user_input["availability_start"]
+availability_end = user_input["availability_end"]
+medical_request = user_input["medical_request"]
+insurance_type = user_input["insurance_type"]
+consultation_type = user_input["consultation_type"]
+price_min = user_input["price_min"]
+price_max = user_input["price_max"]
+geographical_filter = user_input["geographical_filter"]
 
 root = tk.Tk()
 screen_width = root.winfo_screenwidth()
@@ -44,7 +36,6 @@ driver = uc.Chrome(driver_executable_path=ChromeDriverManager().install())
 driver.set_page_load_timeout(3000)
 driver.implicitly_wait(10)
 driver.get("https://www.doctolib.fr")
-# driver.set_window_size(half_width, screen_height)
 driver.set_window_position(0, 0)
 wait = WebDriverWait(driver, 15)
  
@@ -64,7 +55,7 @@ place_input.clear()
 place_input.send_keys(geographical_filter)
 time.sleep(2)
  
-# === Cliquer sur Rechercher ===
+ 
 submit_btn = driver.find_element(By.CSS_SELECTOR, "button.searchbar-submit-button")
 submit_btn.click()
 time.sleep(2)
@@ -76,9 +67,8 @@ time.sleep(2)
 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 time.sleep(3)
  
-# === Extraire les cartes de médecins ===
 cards = driver.find_elements(By.CSS_SELECTOR, "div.dl-card-content")[1:]
-print(f"🔍 {len(cards)} cartes de médecins détectées")
+print(f" {len(cards)} cartes de médecins détectées")
  
 medecins = []
 print("cards", len(cards))
@@ -110,11 +100,11 @@ for card in cards:
     try:
         additional_info = card.find_element(By.CSS_SELECTOR, "div.relative.w-48.h-48")
         if additional_info and additional_info.find_elements(By.TAG_NAME, "div"):
-            consultation_type = "Téléconsultations"
+            consultation = "Téléconsultation"
         else:
-            consultation_type = "Sur Place"
+            consultation = "in-person"
     except:
-        consultation_type = "Informations supplémentaires non disponibles"
+        consultation = "Informations supplémentaires non disponibles"
     
     try:
         flex_elements = card.find_elements(By.CSS_SELECTOR, ".flex.flex-wrap.gap-x-4")
@@ -139,24 +129,31 @@ for card in cards:
         print("No elements with 'flex flex-wrap gap-x-4' found")
     
     
-    try:
-        tarif_section = card.find_element(By.CSS_SELECTOR, ".dl-profile-card-section")
-        if "Tarif" in tarif_section.text:
-            Tarif = tarif_section.text.strip()
-        else:
-            Tarif = "Tarif non précisé"
-    except:
-        Tarif = "Tarif non précisé"
+    # try:
+    #     a = card.find_element(By.CSS_SELECTOR, "a").get_attribute("href")
+    #     if a:
+    #         time.sleep(2)
+    #         driver.execute_script("window.open(arguments[0]);", a)
+    #         driver.switch_to.window(driver.window_handles[-1])
+    #         time.sleep(2)
+    #         tarif_sections = driver.find_elements(By.CSS_SELECTOR, ".dl-profile-card-section")
+    #         driver.close()
+    #         driver.switch_to.window(driver.window_handles[0])
+    #         for tarif_section in tarif_sections:
+    #             if "Tarif" in tarif_section.text:
+    #                 Tarif = tarif_section.text.strip()
+    # except:
+    #     Tarif = "Tarif non précisé"
             
 
     
- 
-    medecins.append({
+    if (consultation_type == "in-person" and consultation == "in-person") or (consultation_type == "Téléconsultation" and consultation == "teleconsultation"):
+        medecins.append({
         "Nom": nom,
         "Disponibilités": Disponibilités,
-        "consultation_type": consultation_type,
+        "consultation_type": consultation,
         "Secteur": Secteur,
-        "Tarif": Tarif,        
+        # "Tarif": Tarif,        
         "Rue": Rue,
         "Code_postal": Code_postal,
         "Ville": Ville,
@@ -170,8 +167,8 @@ if medecins:
         writer = csv.DictWriter(f, fieldnames=medecins[0].keys())
         writer.writeheader()
         writer.writerows(medecins)
-    print(f"✅ {len(medecins)} médecins exportés dans medecins_doctolib.csv")
+    print(f" {len(medecins)} médecins exportés dans medecins_doctolib.csv")
 else:
-    print("❌ Aucun médecin avec horaires affichés n'a été trouvé.")
+    print(" Aucun médecin avec horaires affichés n'a été trouvé.")
  
 driver.quit()

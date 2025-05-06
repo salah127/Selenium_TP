@@ -1,6 +1,6 @@
-Nom,Disponibilités,consultation_type,Secteur,Tarif,Rue,Code_postal,Ville
-Dr Cécile BRUCHET,Ce soignant réserve la prise de rendez-vous en ligne aux patients déjà suivis.,Téléconsultations,Conventionné secteur 1,Tarif non précisé,17 bis Rue Anne-Marie Javouhey,77300,Fontainebleau
-Dr Sophie BROSSIER,Ce soignant réserve la prise de rendez-vous en ligne aux patients déjà suivis.,Téléconsultations,Conventionné secteur 1,Tarif non précisé,17 bis Rue Anne-Marie Javouhey,77300,Fontainebleau
-Dr Pascal CASSARIN,Ce soignant réserve la prise de rendez-vous en ligne aux patients déjà suivis.,Sur Place,Conventionné secteur 1,Tarif non précisé,26bis Rue de la Paroisse,77300,Fontainebleau
-Dr Noémie BENOVICI,Ce soignant réserve la prise de rendez-vous en ligne aux patients déjà suivis.,Téléconsultations,Conventionné secteur 1,Tarif non précisé,17 bis Rue Anne-Marie Javouhey,77300,Fontainebleau
-Dr Ivanka SOJIC-LE ROY,Ce soignant réserve la prise de rendez-vous en ligne aux patients déjà suivis.,Sur Place,Conventionné secteur 1,Tarif non précisé,26 bis Rue de la Paroisse,77300,Fontainebleau
+Nom,Disponibilités,consultation_type,Secteur,Rue,Code_postal,Ville
+Dr Pascal CASSARIN,,in-person,Conventionné secteur 1,26bis Rue de la Paroisse,77300,Fontainebleau
+Dr Ivanka SOJIC-LE ROY,,in-person,Conventionné secteur 1,26 bis Rue de la Paroisse,77300,Fontainebleau
+Dr Tan Trung PHAN,Ce soignant réserve la prise de rendez-vous en ligne aux patients déjà suivis.,in-person,Conventionné secteur 1,17 bis Rue Anne-Marie Javouhey,77300,Fontainebleau
+Dr Clémentine Maes,Ce soignant réserve la prise de rendez-vous en ligne aux patients déjà suivis.,in-person,Conventionné secteur 1,17 bis Rue Anne-Marie Javouhey,77300,Fontainebleau
+Dr Christian Thepot,Ce soignant réserve la prise de rendez-vous en ligne aux patients déjà suivis.,in-person,Conventionné secteur 1,7 Rue de la Chancellerie,77300,Fontainebleau
