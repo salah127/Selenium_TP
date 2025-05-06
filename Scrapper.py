@@ -159,4 +159,4 @@ if medecins:
 else:
     print(" Aucun médecin avec horaires affichés n'a été trouvé.")
  
-driver.quit()
+driver.quit()   
