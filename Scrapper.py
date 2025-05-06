@@ -11,7 +11,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 import undetected_chromedriver as uc
 import tkinter as tk
 
-max_results = 20
+
+
+max_results = 15
 availability_start = "01/01/2025"
 availability_end = "31/12/2025"
 # medical_request = "Médecin généraliste"
@@ -84,7 +86,7 @@ print(f"🔍 {len(cards)} cartes de médecins détectées")
 medecins = []
 print("cards", len(cards))
 # time.sleep(2000)
- 
+
 for card in cards:
     try:
         print("card", card.find_element(By.CSS_SELECTOR, "h2").text.strip())
@@ -101,32 +103,45 @@ for card in cards:
     try:
         availabilities_container = card.find_element(By.CLASS_NAME, "m-16")
         Disponibilités = availabilities_container.text.strip()
+        if Disponibilités.startswith(("Prochaines")) or Disponibilités.startswith(("Aucun")) or Disponibilités.startswith(("lundi")) or Disponibilités.startswith(("mardi")) or Disponibilités.startswith(("mercredi")) or Disponibilités.startswith(("jeudi")) or Disponibilités.startswith(("vendredi")) or Disponibilités.startswith(("samedi")) or Disponibilités.startswith(("dimanche")):
+            Disponibilités = " ".join(line.strip() for line in Disponibilités.strip().split("\n") if line.strip())
+            
     except:
         Disponibilités = "Aucun horaire affiché"
     
    
     try:
-        additional_info = availabilities_container.find_element(By.CLASS_NAME, "w-48")
+        additional_info = card.find_element(By.CSS_SELECTOR, "div.relative.w-48.h-48")
         if additional_info and additional_info.find_elements(By.TAG_NAME, "div"):
             consultation_type = "Téléconsultations"
         else:
             consultation_type = "Sur Place"
     except:
         consultation_type = "Informations supplémentaires non disponibles"
+    
+    try:
+        flex_elements = card.find_elements(By.CSS_SELECTOR, ".flex.flex-wrap.gap-x-4")
+        for index, element in enumerate(flex_elements):
+            if index % 2 != 0:  # Process only even indices
+                Secteur = element.text.strip()
+                print("Flex Element Text:", element.text.strip())
+    except:
+        Secteur = "Pharmacie non précisée"
+        print("No elements with 'flex flex-wrap gap-x-4' found")
         
             
-            
-        print(f"✅ Texte extrait : {Disponibilités}")
-        
+
     
  
     medecins.append({
         "Nom": nom,
         "Disponibilités": Disponibilités,
         "consultation_type": consultation_type,
+        "Secteur": Secteur,
     })
     print("medecins", medecins)
- 
+
+
 # === Sauvegarde CSV ===
 if medecins:
     with open("medecins_doctolib.csv", "w", newline="", encoding="utf-8") as f:
