@@ -13,7 +13,7 @@ import tkinter as tk
 
 
 
-max_results = 15
+max_results = 5
 availability_start = "01/01/2025"
 availability_end = "31/12/2025"
 # medical_request = "Médecin généraliste"
@@ -44,7 +44,7 @@ driver = uc.Chrome(driver_executable_path=ChromeDriverManager().install())
 driver.set_page_load_timeout(3000)
 driver.implicitly_wait(10)
 driver.get("https://www.doctolib.fr")
-driver.set_window_size(half_width, screen_height)
+# driver.set_window_size(half_width, screen_height)
 driver.set_window_position(0, 0)
 wait = WebDriverWait(driver, 15)
  
@@ -70,9 +70,6 @@ submit_btn.click()
 time.sleep(2)
 
 driver.get(f"https://www.doctolib.fr/search?location={geographical_filter}&speciality={medical_request}")
-# https://www.doctolib.fr/search?location=fontainebleau&speciality=medecin-generaliste
-# driver.get("https://www.doctolib.fr/search?location=fontainebleau&speciality=medecin-generaliste")
-
 time.sleep(2)
  
 
@@ -125,10 +122,31 @@ for card in cards:
             if index % 2 != 0:  # Process only even indices
                 Secteur = element.text.strip()
                 print("Flex Element Text:", element.text.strip())
+            else:
+                Adresse = element.find_elements(By.CSS_SELECTOR, ".XZWvFVZmM9FHf461kjNO.G5dSlmEET4Zf5bQ5PR69")
+                for index, element in enumerate(Adresse):
+                    if index % 2 != 0:
+                        Code_postal_Ville = element.text.strip()
+                        Code_postal = Code_postal_Ville.split(" ")[0]
+                        Ville = Code_postal_Ville.split(" ")[-1]
+                    else:
+                        Rue = element.text.strip()
     except:
         Secteur = "Pharmacie non précisée"
+        Rue = "Rue non précisée"
+        Code_postal = "Code postal non précisé"
+        Ville = "Ville non précisée"
         print("No elements with 'flex flex-wrap gap-x-4' found")
-        
+    
+    
+    try:
+        tarif_section = card.find_element(By.CSS_SELECTOR, ".dl-profile-card-section")
+        if "Tarif" in tarif_section.text:
+            Tarif = tarif_section.text.strip()
+        else:
+            Tarif = "Tarif non précisé"
+    except:
+        Tarif = "Tarif non précisé"
             
 
     
@@ -138,6 +156,10 @@ for card in cards:
         "Disponibilités": Disponibilités,
         "consultation_type": consultation_type,
         "Secteur": Secteur,
+        "Tarif": Tarif,        
+        "Rue": Rue,
+        "Code_postal": Code_postal,
+        "Ville": Ville,
     })
     print("medecins", medecins)
 
